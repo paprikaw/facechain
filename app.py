@@ -160,15 +160,24 @@ def launch_pipeline(uuid,
                     pose_model=None,
                     pose_image=None
                     ):
-    if not uuid:
-        if os.getenv("MODELSCOPE_ENVIRONMENT") == 'studio':
-            raise gr.Error("请登陆后使用! (Please login first)")
-        else:
-            uuid = 'qw'
+    print("-------uuid: ", uuid)
+    print("-------pos_prompt: ", pos_prompt)
+    print("-------neg_prompt: ", neg_prompt)
+    print("-------base_model_index: ", base_model_index)
+    print("-------user_model: ", user_model)
+    print("-------num_images: ", num_images)
+    print("-------lora_choice: ", lora_choice)
+    print("-------style_model: ", style_model)
+    print("-------multiplier_style: ", multiplier_style)
+    print("-------multiplier_human: ", multiplier_human)
+    print("-------pose_model: ", pose_model)
+    print("-------pose_image: ", pose_image)
+
+    uuid = 'qw'
     
     # Check base model
     if base_model_index == None:
-        raise gr.Error('请选择基模型(Please select the base model)!')
+        raise '请选择基模型(Please select the base model)！'
     
     # Check character LoRA
     folder_path = f"./{uuid}/{character_model}"
@@ -182,17 +191,17 @@ def launch_pipeline(uuid,
                 if os.path.exists(file_lora_path):
                     folder_list.append(file)
     if len(folder_list) == 0:
-        raise gr.Error('没有人物LoRA，请先训练(There is no character LoRA, please train first)!')
+        raise '没有人物LoRA，请先训练(There is no character LoRA, please train first)!'
 
     # Check output model
     if user_model == None:
-        raise gr.Error('请选择人物LoRA(Please select the character LoRA)！')
+        raise '请选择人物LoRA(Please select the character LoRA)！'
     # Check lora choice
     if lora_choice == None:
-        raise gr.Error('请选择LoRA模型(Please select the LoRA model)!')
+        raise '请选择LoRA模型(Please select the LoRA model)!'
     # Check style model
     if style_model == None and lora_choice == 'preset':
-        raise gr.Error('请选择风格模型(Please select the style model)!')
+        raise '请选择风格模型(Please select the style model)!'
 
     base_model = base_models[base_model_index]['model_id']
     revision = base_models[base_model_index]['revision']
@@ -242,7 +251,7 @@ def launch_pipeline(uuid,
 
     instance_data_dir = os.path.join('./', uuid, 'training_data', character_model, user_model)
     lora_model_path = f'./{uuid}/{character_model}/{user_model}/'
-
+    print('----------======================')
     gen_portrait = GenPortrait(pose_model_path, pose_image, use_depth_control, pos_prompt, neg_prompt, style_model_path, 
                                multiplier_style, multiplier_human, use_main_model,
                                use_face_swap, use_post_process,
@@ -985,7 +994,7 @@ for base_model in base_models:
     files.sort()
     for file in files:
         file_path = os.path.join(folder_path, file)
-        with open(file_path, "r") as f:
+        with open(file_path, "r",encoding='utf-8') as f:
             data = json.load(f)
             style_in_base.append(data['name'])
             styles.append(data)
@@ -1002,6 +1011,6 @@ with gr.Blocks(css='style.css') as demo:
         with gr.TabItem('\N{party popper}固定模板形象写真(Fixed Templates Portrait)'):
             inference_inpaint()
 
-if __name__ == "__main__":
-    multiprocessing.set_start_method('spawn')
-    demo.queue(status_update_rate=1).launch(share=True)
+# if __name__ == "__main__":
+#     multiprocessing.set_start_method('spawn')
+#     demo.queue(status_update_rate=1).launch(share=True)
